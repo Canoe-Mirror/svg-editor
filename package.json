@@ -6,7 +6,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "cli": "tsx src/cli/index.ts",
     "build": "tsc",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "try": "tsx src/_manual-test.ts > demo/out.svg"
   },
   "keywords": [],
   "author": "",
