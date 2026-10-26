@@ -1,0 +1,123 @@
+import type { Group } from './Group';
+export abstract class Shape {
+  readonly id: string;
+  parent: Group | null = null;
+  private readonly attrs = new Map<string, string>();
+
+  constructor(id: string, attrs: Record<string, string | number> = {}) {
+    if (id.trim() === '') {
+      throw new Error('id must not be empty');
+    }
+    this.id = id;
+    for (const [key, value] of Object.entries(attrs)) {
+      this.attrs.set(key, String(value));
+    }
+  }
+
+  abstract readonly tagName: string;
+  protected abstract readonly xKeys: readonly string[];
+  protected abstract readonly yKeys: readonly string[];
+  protected abstract readonly scaleKeys: readonly string[];
+  abstract treeAttrs(): string;
+
+  protected getNumber(key: string): number {
+    const raw = this.attrs.get(key);
+    if (raw === undefined) {
+      return 0;
+    }
+    const value = Number(raw);
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  protected setNumber(key: string, value: number): void {
+    this.attrs.set(key, Shape.formatNumber(value));
+  }
+
+  static formatNumber(value: number): string {
+    return String(Math.round(value * 1000) / 1000);
+  }
+
+  move(dx: number, dy: number): void {
+    for (const key of this.xKeys) {
+      this.setNumber(key, this.getNumber(key) + dx);
+    }
+    for (const key of this.yKeys) {
+      this.setNumber(key, this.getNumber(key) + dy);
+    }
+  }
+
+  scale(factor: number): void {
+    if (!(factor > 0)) {
+      throw new Error('scale factor must be positive');
+    }
+    for (const key of this.scaleKeys) {
+      this.setNumber(key, this.getNumber(key) * factor);
+    }
+  }
+
+  settableKeys(): readonly string[] {
+    return [...this.scaleKeys, 'fill', 'stroke', 'stroke-width'];
+  }
+
+  setAttribute(key: string, value: string): void {
+    if (!this.settableKeys().includes(key)) {
+      throw new Error(`unknown attribute: ${key}`);
+    }
+    this.attrs.set(key, value);
+  }
+
+  getAttribute(key: string): string | undefined {
+    return this.attrs.get(key);
+  }
+
+  toSvg(indent: number): string {
+    const pad = '  '.repeat(indent);
+    return `${pad}<${this.tagName} ${this.attributeString()}/>`;
+  }
+
+  treeHead(): string {
+    return `${this.tagName}#${this.id}`;
+  }
+
+  protected attributeString(): string {
+    const parts = [`id="${Shape.escape(this.id)}"`];
+    const ordered = [...this.scaleKeys, 'fill', 'stroke', 'stroke-width'];
+    for (const key of ordered) {
+      const value = this.attrs.get(key);
+      if (value !== undefined) {
+        parts.push(`${key}="${Shape.escape(value)}"`);
+      }
+    }
+    return parts.join(' ');
+  }
+
+  protected styleAttrs(): string {
+    const parts: string[] = [];
+    for (const key of ['fill', 'stroke', 'stroke-width']) {
+      const value = this.attrs.get(key);
+      if (value !== undefined) {
+        parts.push(`${key}=${value}`);
+      }
+    }
+    return parts.join(' ');
+  }
+
+  protected joinAttrs(...parts: string[]): string {
+    return parts.filter((part) => part !== '').join(' ');
+  }
+
+  protected static escape(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  protected static escapeText(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+}
