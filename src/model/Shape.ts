@@ -70,6 +70,16 @@ export abstract class Shape {
     return this.attrs.get(key);
   }
 
+  removeAttribute(key: string): void {
+    this.attrs.delete(key);
+  }
+
+  moveFeedback(dx: number, dy: number): string {
+    const x = this.getNumber(this.xKeys[0]);
+    const y = this.getNumber(this.yKeys[0]);
+    return `moved to (${Shape.formatNumber(x)},${Shape.formatNumber(y)})`;
+  }
+
   toSvg(indent: number): string {
     const pad = '  '.repeat(indent);
     return `${pad}<${this.tagName} ${this.attributeString()}/>`;

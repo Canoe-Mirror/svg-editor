@@ -1,10 +1,4 @@
-/**
- * 临时测试脚本
- * 目的：不经过命令行，直接在代码里搭出作业第 6 章那棵树，验证：
- *   1. 六种图形都能正确序列化成 SVG；
- *   2. 容器移动/缩放会递归到子孙；
- *   3. `set` 的白名单和 text 内容改写生效。
- */
+/* 临时测试脚本 */
 import { Circle } from './model/Circle';
 import { Document } from './model/Document';
 import { Ellipse } from './model/Ellipse';
@@ -13,6 +7,11 @@ import { Line } from './model/Line';
 import { Rect } from './model/Rect';
 import { TextShape } from './model/TextShape';
 import type { Shape } from './model/Shape';
+import { CreateCommand } from './command/CreateCommand';
+import { DeleteCommand } from './command/DeleteCommand';
+import { MoveCommand } from './command/MoveCommand';
+import { SetCommand } from './command/SetCommand';
+import { UndoManager } from './command/UndoManager';
 
 const doc = new Document(800, 600);
 
@@ -81,3 +80,81 @@ for (const action of bad) {
 }
 
 console.log(doc.toSvg());
+
+console.error('\n=== 阶段 3：Command 模式与 undo/redo ===');
+
+const doc2 = new Document(800, 600);
+const undo = new UndoManager();
+const bg2 = new Rect('bg', { x: 0, y: 0, width: 800, height: 600, fill: '#ffffff' });
+doc2.add(bg2, doc2.root);
+
+function expectError(label: string, action: () => void): void {
+  try {
+    action();
+    console.error(`${label}: 没有抛错（不对）`);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`${label}: error: ${message}`);
+  }
+}
+
+const mv = new MoveCommand(doc2, 'bg', 30, 0);
+mv.execute();
+undo.push(mv);
+console.error(`move        ${mv.feedback()}`);
+undo.undo();
+console.error(`after undo  ${bg2.treeAttrs()}`);
+undo.redo();
+console.error(`after redo  ${bg2.treeAttrs()}`);
+
+const create = new CreateCommand(doc2, 'rect', 'r1', ['10', '20', '100', '50', '#eee']);
+create.execute();
+undo.push(create);
+console.error(`create      ${create.feedback()}`);
+undo.undo();
+console.error(`r1 alive    ${doc2.has('r1')}`);
+undo.redo();
+console.error(`r1 alive    ${doc2.has('r1')}`);
+
+const st = new SetCommand(doc2, 'r1', 'fill', 'red');
+st.execute();
+undo.push(st);
+console.error(`set         ${st.feedback()}`);
+undo.undo();
+console.error(`fill now    ${doc2.require('r1').getAttribute('fill')}`);
+const st2 = new SetCommand(doc2, 'r1', 'stroke', 'blue');
+st2.execute();
+undo.push(st2);
+console.error(`set         ${st2.feedback()}`);
+undo.undo();
+console.error(`stroke now  ${String(doc2.require('r1').getAttribute('stroke'))}（undefined = 正确删除）`);
+
+const createText = new CreateCommand(doc2, 'text', 't1', ['20', '40', 'hello']);
+createText.execute();
+undo.push(createText);
+const stText = new SetCommand(doc2, 't1', 'text', 'hello v2');
+stText.execute();
+undo.push(stText);
+console.error(`text set    ${stText.feedback()}`);
+undo.undo();
+console.error(`text now    "${(doc2.require('t1') as TextShape).getContent()}"`);
+
+const del = new DeleteCommand(doc2, 'r1');
+del.execute();
+undo.push(del);
+console.error(`delete      ${del.feedback()}`);
+undo.undo();
+const r1 = doc2.require('r1');
+console.error(`restored    parent=${r1.parent?.id} ${r1.treeAttrs()}`);
+
+undo.lock();
+expectError('locked undo', () => undo.undo());
+expectError('locked redo', () => undo.redo());
+
+const mv2 = new MoveCommand(doc2, 'bg', 5, 5);
+mv2.execute();
+undo.push(mv2);
+console.error(`new edit    ${mv2.feedback()}`);
+expectError('stale redo', () => undo.redo());
+
+console.log(doc2.toSvg());

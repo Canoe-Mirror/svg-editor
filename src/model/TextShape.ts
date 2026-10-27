@@ -22,6 +22,21 @@ export class TextShape extends Shape {
     return [...super.settableKeys(), 'text'];
   }
 
+  override getAttribute(key: string): string | undefined {
+    if (key === 'text') {
+      return this.content;
+    }
+    return super.getAttribute(key);
+  }
+
+  override removeAttribute(key: string): void {
+    if (key === 'text') {
+      this.content = '';
+      return;
+    }
+    super.removeAttribute(key);
+  }
+
   override setAttribute(key: string, value: string): void {
     if (key === 'text') {
       this.content = value;

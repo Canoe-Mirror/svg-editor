@@ -31,6 +31,11 @@ export class Group extends Shape {
     return '';
   }
 
+  /** 容器的移动回显用增量形式：g#node2 moved by (0,100) */
+  override moveFeedback(dx: number, dy: number): string {
+    return `moved by (${Shape.formatNumber(dx)},${Shape.formatNumber(dy)})`;
+  }
+
   append(child: Shape): void {
     child.parent = this;
     this._children.push(child);
