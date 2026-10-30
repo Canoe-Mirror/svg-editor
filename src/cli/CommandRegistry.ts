@@ -16,6 +16,7 @@ import { InitOperation } from './commands/InitOperation';
 import { ReadOperation } from './commands/ReadOperation';
 import { RedoOperation } from './commands/RedoOperation';
 import { SaveOperation } from './commands/SaveOperation';
+import { ShowOperation } from './commands/ShowOperation';
 import { TreeOperation } from './commands/TreeOperation';
 import { UndoOperation } from './commands/UndoOperation';
 
@@ -180,6 +181,14 @@ export function buildDefaultRegistry(): CommandRegistry {
         throw new Error('invalid arguments: tree');
       }
       return new TreeOperation(app, tokens[1]);
+    },
+  });
+
+  registry.register('show', {
+    usage: 'show <id>',
+    build: (tokens, app) => {
+      requireArgCount(tokens, 2, 'show');
+      return new ShowOperation(app, tokens[1] as string);
     },
   });
 
