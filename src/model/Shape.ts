@@ -1,5 +1,7 @@
 import type { Group } from './Group';
 export abstract class Shape {
+  private static readonly STYLE_KEYS: readonly string[] = ['fill', 'stroke', 'stroke-width'];
+
   readonly id: string;
   parent: Group | null = null;
   private readonly attrs = new Map<string, string>();
@@ -22,6 +24,18 @@ export abstract class Shape {
 
   childShapes(): readonly Shape[] {
     return [];
+  }
+
+  acceptsChildren(): boolean {
+    return false;
+  }
+
+  appendChild(child: Shape): void {
+    throw new Error(`not a container: ${this.id}`);
+  }
+
+  captureText(content: string): void {
+    return;
   }
 
   isSelfOrDescendantOf(ancestor: Shape): boolean {
@@ -71,7 +85,15 @@ export abstract class Shape {
   }
 
   settableKeys(): readonly string[] {
-    return [...this.scaleKeys, 'fill', 'stroke', 'stroke-width'];
+    return [...this.scaleKeys, ...Shape.STYLE_KEYS];
+  }
+
+  loadAttributes(attrs: ReadonlyMap<string, string>): void {
+    for (const [key, value] of attrs) {
+      if (key !== 'id') {
+        this.attrs.set(key, value);
+      }
+    }
   }
 
   setAttribute(key: string, value: string): void {
@@ -112,8 +134,7 @@ export abstract class Shape {
 
   protected attributeString(): string {
     const parts = [`id="${Shape.escape(this.id)}"`];
-    const ordered = [...this.scaleKeys, 'fill', 'stroke', 'stroke-width'];
-    for (const key of ordered) {
+    for (const key of this.orderedAttributeKeys()) {
       const value = this.attrs.get(key);
       if (value !== undefined) {
         parts.push(`${key}="${Shape.escape(value)}"`);
@@ -122,9 +143,15 @@ export abstract class Shape {
     return parts.join(' ');
   }
 
+  private orderedAttributeKeys(): readonly string[] {
+    const known = [...this.scaleKeys, ...Shape.STYLE_KEYS];
+    const extra = [...this.attrs.keys()].filter((key) => !known.includes(key));
+    return [...known, ...extra];
+  }
+
   protected styleAttrs(): string {
     const parts: string[] = [];
-    for (const key of ['fill', 'stroke', 'stroke-width']) {
+    for (const key of Shape.STYLE_KEYS) {
       const value = this.attrs.get(key);
       if (value !== undefined) {
         parts.push(`${key}=${value}`);

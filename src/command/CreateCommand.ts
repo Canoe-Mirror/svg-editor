@@ -1,5 +1,5 @@
 import type { Command } from './Command';
-import { ShapeFactory } from './ShapeFactory';
+import { ShapeFactory } from '../model/ShapeFactory';
 import type { Document } from '../model/Document';
 import type { Group } from '../model/Group';
 import type { Shape } from '../model/Shape';

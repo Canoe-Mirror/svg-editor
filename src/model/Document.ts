@@ -104,4 +104,18 @@ export class Document {
     lines.push('</svg>');
     return lines.join('\n');
   }
+
+  countElements(): number {
+    let total = 0;
+    const walk = (shape: Shape): void => {
+      total += 1;
+      for (const child of shape.childShapes()) {
+        walk(child);
+      }
+    };
+    for (const child of this.root.childShapes()) {
+      walk(child);
+    }
+    return total;
+  }
 }

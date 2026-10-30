@@ -1,11 +1,10 @@
-import { Circle } from '../model/Circle';
-import type { Document } from '../model/Document';
-import { Ellipse } from '../model/Ellipse';
-import { Group } from '../model/Group';
-import { Line } from '../model/Line';
-import { Rect } from '../model/Rect';
-import { TextShape } from '../model/TextShape';
-import type { Shape } from '../model/Shape';
+import { Circle } from './Circle';
+import { Ellipse } from './Ellipse';
+import { Group } from './Group';
+import { Line } from './Line';
+import { Rect } from './Rect';
+import { TextShape } from './TextShape';
+import type { Shape } from './Shape';
 
 export class ShapeFactory {
   static create(type: string, id: string, params: string[]): Shape {
@@ -55,12 +54,7 @@ export class ShapeFactory {
       }
       case 'text': {
         ShapeFactory.expect(params, 3, 3, type);
-        return new TextShape(
-          id,
-          ShapeFactory.num(params[0]),
-          ShapeFactory.num(params[1]),
-          params[2],
-        );
+        return new TextShape(id, ShapeFactory.num(params[0]), ShapeFactory.num(params[1]), params[2]);
       }
       case 'g': {
         ShapeFactory.expect(params, 0, 0, type);
@@ -68,6 +62,38 @@ export class ShapeFactory {
       }
       default:
         throw new Error(`unknown shape type: ${type} (is the plugin loaded?)`);
+    }
+  }
+
+  static supports(tag: string): boolean {
+    return ShapeFactory.blank(tag, '_') !== null;
+  }
+
+  static restore(tag: string, id: string, attrs: ReadonlyMap<string, string>): Shape | null {
+    const shape = ShapeFactory.blank(tag, id);
+    if (shape === null) {
+      return null;
+    }
+    shape.loadAttributes(attrs);
+    return shape;
+  }
+
+  private static blank(tag: string, id: string): Shape | null {
+    switch (tag) {
+      case 'rect':
+        return new Rect(id);
+      case 'circle':
+        return new Circle(id);
+      case 'ellipse':
+        return new Ellipse(id);
+      case 'line':
+        return new Line(id);
+      case 'text':
+        return new TextShape(id, 0, 0, '');
+      case 'g':
+        return new Group(id);
+      default:
+        return null;
     }
   }
 

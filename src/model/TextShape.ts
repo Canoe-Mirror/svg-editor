@@ -18,6 +18,10 @@ export class TextShape extends Shape {
     return this.content;
   }
 
+  override captureText(content: string): void {
+    this.content = content;
+  }
+
   override settableKeys(): readonly string[] {
     return [...super.settableKeys(), 'text'];
   }

@@ -17,6 +17,14 @@ export class Group extends Shape {
     return this._children;
   }
 
+  override acceptsChildren(): boolean {
+    return true;
+  }
+
+  override appendChild(child: Shape): void {
+    this.append(child);
+  }
+
   override move(dx: number, dy: number): void {
     super.move(dx, dy);
     for (const child of this._children) {
