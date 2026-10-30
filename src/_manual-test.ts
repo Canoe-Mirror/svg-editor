@@ -1,4 +1,3 @@
-/* 临时测试脚本 */
 import { Circle } from './model/Circle';
 import { Document } from './model/Document';
 import { Ellipse } from './model/Ellipse';
