@@ -33,4 +33,11 @@ export class DeleteCommand implements Command {
     const head = this.shape === undefined ? this.id : this.shape.treeHead();
     return `${head} deleted`;
   }
+
+  undoFeedback(): string {
+    if (this.shape === undefined || this.parent === null) {
+      throw new Error('command was not executed');
+    }
+    return `${this.shape.treeHead()} restored into ${this.parent.treeHead()}`;
+  }
 }

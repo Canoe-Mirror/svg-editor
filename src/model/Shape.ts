@@ -20,6 +20,10 @@ export abstract class Shape {
   protected abstract readonly scaleKeys: readonly string[];
   abstract treeAttrs(): string;
 
+  childShapes(): readonly Shape[] {
+    return [];
+  }
+
   protected getNumber(key: string): number {
     const raw = this.attrs.get(key);
     if (raw === undefined) {
@@ -78,6 +82,12 @@ export abstract class Shape {
     const x = this.getNumber(this.xKeys[0]);
     const y = this.getNumber(this.yKeys[0]);
     return `moved to (${Shape.formatNumber(x)},${Shape.formatNumber(y)})`;
+  }
+
+  moveUndoFeedback(dx: number, dy: number): string {
+    const x = this.getNumber(this.xKeys[0]);
+    const y = this.getNumber(this.yKeys[0]);
+    return `moved back to (${Shape.formatNumber(x)},${Shape.formatNumber(y)})`;
   }
 
   toSvg(indent: number): string {

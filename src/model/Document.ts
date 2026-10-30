@@ -27,6 +27,17 @@ export class Document {
     return shape;
   }
 
+  requireContainer(id: string): Group {
+    const shape = this.index.get(id);
+    if (shape === undefined) {
+      throw new Error(`no such container: ${id}`);
+    }
+    if (!(shape instanceof Group)) {
+      throw new Error(`not a container: ${id}`);
+    }
+    return shape;
+  }
+
   has(id: string): boolean {
     return this.index.has(id);
   }
@@ -36,10 +47,8 @@ export class Document {
       throw new Error(`id already exists: ${shape.id}`);
     }
     this.index.set(shape.id, shape);
-    if (shape instanceof Group) {
-      for (const child of shape.children) {
-        this.register(child);
-      }
+    for (const child of shape.childShapes()) {
+      this.register(child);
     }
   }
 
@@ -59,10 +68,8 @@ export class Document {
 
   private unregister(shape: Shape): void {
     this.index.delete(shape.id);
-    if (shape instanceof Group) {
-      for (const child of shape.children) {
-        this.unregister(child);
-      }
+    for (const child of shape.childShapes()) {
+      this.unregister(child);
     }
   }
 

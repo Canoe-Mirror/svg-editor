@@ -18,6 +18,12 @@ export class MoveCommand implements Command {
   }
 
   feedback(): string {
-    return `${this.doc.require(this.id).treeHead()} ${this.doc.require(this.id).moveFeedback(this.dx, this.dy)}`;
+    const shape = this.doc.require(this.id);
+    return `${shape.treeHead()} ${shape.moveFeedback(this.dx, this.dy)}`;
+  }
+
+  undoFeedback(): string {
+    const shape = this.doc.require(this.id);
+    return `${shape.treeHead()} ${shape.moveUndoFeedback(this.dx, this.dy)}`;
   }
 }

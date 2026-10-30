@@ -35,4 +35,9 @@ export class SetCommand implements Command {
     const shape = this.doc.require(this.id);
     return `${shape.treeHead()} updated: ${this.key}="${this.value}"`;
   }
+
+  undoFeedback(): string {
+    const shape = this.doc.require(this.id);
+    return `${shape.treeHead()} updated: ${this.key}="${this.oldValue ?? ''}"`;
+  }
 }

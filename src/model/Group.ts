@@ -13,6 +13,10 @@ export class Group extends Shape {
     return this._children;
   }
 
+  override childShapes(): readonly Shape[] {
+    return this._children;
+  }
+
   override move(dx: number, dy: number): void {
     super.move(dx, dy);
     for (const child of this._children) {
@@ -31,9 +35,12 @@ export class Group extends Shape {
     return '';
   }
 
-  /** 容器的移动回显用增量形式：g#node2 moved by (0,100) */
   override moveFeedback(dx: number, dy: number): string {
     return `moved by (${Shape.formatNumber(dx)},${Shape.formatNumber(dy)})`;
+  }
+
+  override moveUndoFeedback(dx: number, dy: number): string {
+    return `moved back by (${Shape.formatNumber(-dx)},${Shape.formatNumber(-dy)})`;
   }
 
   append(child: Shape): void {

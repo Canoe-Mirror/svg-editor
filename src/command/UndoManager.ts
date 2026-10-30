@@ -19,7 +19,7 @@ export class UndoManager {
     return !this.locked && this.redoStack.length > 0;
   }
 
-  undo(): void {
+  undo(): Command {
     if (this.locked) {
       throw new Error('undo not allowed after io command');
     }
@@ -29,9 +29,10 @@ export class UndoManager {
     }
     command.undo();
     this.redoStack.push(command);
+    return command;
   }
 
-  redo(): void {
+  redo(): Command {
     if (this.locked) {
       throw new Error('redo not allowed after io command');
     }
@@ -41,9 +42,16 @@ export class UndoManager {
     }
     command.execute();
     this.undoStack.push(command);
+    return command;
   }
 
   lock(): void {
+    this.locked = true;
+  }
+
+  reset(): void {
+    this.undoStack.length = 0;
+    this.redoStack.length = 0;
     this.locked = true;
   }
 }
