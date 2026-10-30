@@ -43,18 +43,38 @@ export class Document {
   }
 
   register(shape: Shape): void {
-    if (this.index.has(shape.id)) {
-      throw new Error(`id already exists: ${shape.id}`);
-    }
-    this.index.set(shape.id, shape);
+    this.track(shape);
     for (const child of shape.childShapes()) {
       this.register(child);
     }
   }
 
+  track(shape: Shape): void {
+    if (this.index.has(shape.id)) {
+      throw new Error(`id already exists: ${shape.id}`);
+    }
+    this.index.set(shape.id, shape);
+  }
+
+  untrack(shape: Shape): void {
+    this.index.delete(shape.id);
+  }
+
   add(shape: Shape, parent: Group = this.root): void {
     this.register(shape);
     parent.append(shape);
+  }
+
+  relocate(shape: Shape, parent: Group, index?: number): void {
+    const oldParent = shape.parent;
+    if (oldParent !== null) {
+      oldParent.removeChild(shape);
+    }
+    if (index === undefined) {
+      parent.append(shape);
+    } else {
+      parent.insertAt(shape, index);
+    }
   }
 
   detach(shape: Shape): Group | null {
@@ -67,7 +87,7 @@ export class Document {
   }
 
   private unregister(shape: Shape): void {
-    this.index.delete(shape.id);
+    this.untrack(shape);
     for (const child of shape.childShapes()) {
       this.unregister(child);
     }

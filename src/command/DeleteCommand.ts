@@ -15,8 +15,11 @@ export class DeleteCommand implements Command {
 
   execute(): void {
     const shape = this.doc.require(this.id);
+    if (shape.parent === null) {
+      throw new Error(`cannot delete root: ${this.id}`);
+    }
     this.parent = shape.parent;
-    this.index = this.parent === null ? -1 : this.parent.indexOfChild(shape);
+    this.index = this.parent.indexOfChild(shape);
     this.shape = shape;
     this.doc.detach(shape);
   }

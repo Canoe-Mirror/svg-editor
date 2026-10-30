@@ -24,6 +24,17 @@ export abstract class Shape {
     return [];
   }
 
+  isSelfOrDescendantOf(ancestor: Shape): boolean {
+    let node: Shape | null = this;
+    while (node !== null) {
+      if (node === ancestor) {
+        return true;
+      }
+      node = node.parent;
+    }
+    return false;
+  }
+
   protected getNumber(key: string): number {
     const raw = this.attrs.get(key);
     if (raw === undefined) {
