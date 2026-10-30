@@ -32,10 +32,11 @@ export class Document {
     if (shape === undefined) {
       throw new Error(`no such container: ${id}`);
     }
-    if (!(shape instanceof Group)) {
+    const container = shape.asContainer();
+    if (container === null) {
       throw new Error(`not a container: ${id}`);
     }
-    return shape;
+    return container;
   }
 
   has(id: string): boolean {

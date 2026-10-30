@@ -69,7 +69,8 @@ export class SvgParser {
         continue;
       }
 
-      if (top === undefined || !top.shape.acceptsChildren()) {
+      const container = top === undefined ? null : top.shape.asContainer();
+      if (container === null) {
         warnings.push(`skipped <${tag.name}>: parent is not a container`);
         if (!tag.selfClosing) {
           skipDepth = 1;
@@ -92,7 +93,7 @@ export class SvgParser {
       }
 
       doc.track(shape);
-      top.shape.appendChild(shape);
+      container.append(shape);
 
       if (!tag.selfClosing) {
         stack.push({ name: tag.name, shape, text: '' });

@@ -17,12 +17,8 @@ export class Group extends Shape {
     return this._children;
   }
 
-  override acceptsChildren(): boolean {
-    return true;
-  }
-
-  override appendChild(child: Shape): void {
-    this.append(child);
+  override asContainer(): Group {
+    return this;
   }
 
   override move(dx: number, dy: number): void {
@@ -72,23 +68,6 @@ export class Group extends Shape {
 
   indexOfChild(child: Shape): number {
     return this._children.indexOf(child);
-  }
-
-  findById(id: string): Shape | null {
-    if (this.id === id) {
-      return this;
-    }
-    for (const child of this._children) {
-      if (child instanceof Group) {
-        const found = child.findById(id);
-        if (found !== null) {
-          return found;
-        }
-      } else if (child.id === id) {
-        return child;
-      }
-    }
-    return null;
   }
 
   override toSvg(indent: number): string {

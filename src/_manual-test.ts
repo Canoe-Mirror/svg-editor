@@ -34,10 +34,8 @@ function printTree(shape: Shape, depth: number): void {
   const indent = '  '.repeat(depth);
   const attrs = shape.treeAttrs();
   console.error(`${indent}${shape.treeHead()}${attrs === '' ? '' : '  ' + attrs}`);
-  if (shape instanceof Group) {
-    for (const child of shape.children) {
-      printTree(child, depth + 1);
-    }
+  for (const child of shape.childShapes()) {
+    printTree(child, depth + 1);
   }
 }
 

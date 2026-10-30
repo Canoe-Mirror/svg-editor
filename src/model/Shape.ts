@@ -26,12 +26,8 @@ export abstract class Shape {
     return [];
   }
 
-  acceptsChildren(): boolean {
-    return false;
-  }
-
-  appendChild(child: Shape): void {
-    throw new Error(`not a container: ${this.id}`);
+  asContainer(): Group | null {
+    return null;
   }
 
   captureText(content: string): void {
