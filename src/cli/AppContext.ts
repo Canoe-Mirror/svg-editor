@@ -1,10 +1,15 @@
 import type { Document } from '../model/Document';
 import { UndoManager } from '../command/UndoManager';
+import { NodeFileSystem } from '../io/FileSystem';
+import type { FileSystem } from '../io/FileSystem';
 
 export class AppContext {
-  private current: Document | null = null;
   readonly undo = new UndoManager();
+
+  private current: Document | null = null;
   filePath: string | null = null;
+
+  constructor(readonly fs: FileSystem = new NodeFileSystem()) {}
 
   get document(): Document | null {
     return this.current;

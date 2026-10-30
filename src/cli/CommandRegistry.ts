@@ -13,7 +13,9 @@ import { UngroupCommand } from '../command/UngroupCommand';
 import { CanvasOperation } from './commands/CanvasOperation';
 import { HelpOperation } from './commands/HelpOperation';
 import { InitOperation } from './commands/InitOperation';
+import { ReadOperation } from './commands/ReadOperation';
 import { RedoOperation } from './commands/RedoOperation';
+import { SaveOperation } from './commands/SaveOperation';
 import { TreeOperation } from './commands/TreeOperation';
 import { UndoOperation } from './commands/UndoOperation';
 
@@ -50,6 +52,24 @@ export function buildDefaultRegistry(): CommandRegistry {
       const width = tokens[1] === undefined ? 800 : toNumber(tokens[1]);
       const height = tokens[2] === undefined ? 600 : toNumber(tokens[2]);
       return new InitOperation(app, width, height);
+    },
+  });
+
+  registry.register('read', {
+    usage: 'read <file.svg>',
+    build: (tokens, app) => {
+      requireArgCount(tokens, 2, 'read');
+      return new ReadOperation(app, tokens[1] as string);
+    },
+  });
+
+  registry.register('save', {
+    usage: 'save [file.svg]',
+    build: (tokens, app) => {
+      if (tokens.length > 2) {
+        throw new Error('invalid arguments: save');
+      }
+      return new SaveOperation(app, tokens[1]);
     },
   });
 
