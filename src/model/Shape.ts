@@ -132,6 +132,30 @@ export abstract class Shape {
     return `${this.tagName}#${this.id}`;
   }
 
+  detailSections(): readonly (readonly string[])[] {
+    return [
+      this.describeKeys(this.scaleKeys),
+      this.describeKeys(Shape.STYLE_KEYS),
+      this.describeKeys(this.extraKeys()),
+    ];
+  }
+
+  protected describeKeys(keys: readonly string[]): readonly string[] {
+    const parts: string[] = [];
+    for (const key of keys) {
+      const value = this.attrs.get(key);
+      if (value !== undefined) {
+        parts.push(`${key}=${value}`);
+      }
+    }
+    return parts;
+  }
+
+  protected extraKeys(): readonly string[] {
+    const known: readonly string[] = [...this.scaleKeys, ...Shape.STYLE_KEYS];
+    return [...this.attrs.keys()].filter((key) => !known.includes(key));
+  }
+
   protected attributeString(): string {
     const parts = [`id="${Shape.escape(this.id)}"`];
     for (const key of this.orderedAttributeKeys()) {
@@ -144,9 +168,7 @@ export abstract class Shape {
   }
 
   private orderedAttributeKeys(): readonly string[] {
-    const known = [...this.scaleKeys, ...Shape.STYLE_KEYS];
-    const extra = [...this.attrs.keys()].filter((key) => !known.includes(key));
-    return [...known, ...extra];
+    return [...this.scaleKeys, ...Shape.STYLE_KEYS, ...this.extraKeys()];
   }
 
   protected styleAttrs(): string {

@@ -22,6 +22,11 @@ export class TextShape extends Shape {
     this.content = content;
   }
 
+  override detailSections(): readonly (readonly string[])[] {
+    const [geometry, style, extra] = super.detailSections();
+    return [geometry, style, [...extra, `text="${this.content}"`]];
+  }
+
   override settableKeys(): readonly string[] {
     return [...super.settableKeys(), 'text'];
   }
