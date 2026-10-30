@@ -13,7 +13,7 @@ export class Repl {
     try {
       const tokens = Tokenizer.tokenize(line);
       if (tokens.length === 0) {
-        return []; 
+        return [];
       }
 
       const name = tokens[0] as string;
